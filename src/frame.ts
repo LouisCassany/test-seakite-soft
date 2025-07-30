@@ -179,7 +179,7 @@ type template = {
     type: string
 }
 
-type Frame_template = {
+export type Frame_template = {
     [key: string]: {
         data_length: number
         templates: template[]

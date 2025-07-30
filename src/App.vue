@@ -1,14 +1,19 @@
 <template>
-  <div>
-    <button ref="connectBtn" @click="requestPort()" class=" text-white font-bold py-2 px-4 rounded cursor-pointer"
-      :disabled="serialPortStatus" :class="{
-        'bg-gray-500': serialPortStatus,
-        'bg-blue-500 hover:bg-blue-700': !serialPortStatus
-      }">
-      {{ serialPortStatus ? "Connected" : "Connect" }}
-    </button>
+  <div class="flex flex-col">
+    <div class="flex">
+      <button ref="connectBtn" @click="requestPort()" class=" text-white font-bold py-2 px-4 rounded cursor-pointer"
+        :disabled="serialPortStatus" :class="{
+          'bg-gray-500': serialPortStatus,
+          'bg-blue-500 hover:bg-blue-700': !serialPortStatus
+        }">
+        {{ serialPortStatus ? "Connected" : "Connect" }}
+      </button>
+    </div>
 
-    <Frame :frame-template="test" />
+    <div class="flex">
+      <FrameEditor v-if="test" :frame="test" v-model="frameObj" name="Statique" />
+      {{ frameObj }}
+    </div>
   </div>
 </template>
 
@@ -17,19 +22,18 @@ import { SerialProcess } from "./serial"
 import { DataSchemas } from "./frame"
 import { onMounted, ref } from "vue"
 import { encode_buffer } from "./buffer"
-import Frame from "./components/Frame.vue"
+import FrameEditor from "./components/FrameEditor.vue"
 
 const serialPortStatus = ref(false)
-
-const test = ref<any[]>([])
+const test = ref(null)
+const frameObj = ref<Record<string, number>>({})
 
 onMounted(async () => {
 
   await DataSchemas.start()
   SerialProcess.getPorts()
 
-  test.value = DataSchemas.getFrameTemplates()["0x75"].templates
-
+  test.value = DataSchemas.getFrameTemplates()['0x67']
 
   SerialProcess.onFrameReceived = (frame: Uint8Array) => {
     if (frame[1] === 0x01) {
